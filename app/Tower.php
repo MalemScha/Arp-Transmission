@@ -18,7 +18,7 @@ class Tower extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'user_id', 'location_id', 'line_id', 'tower_id'
+        'name', 'user_id', 'location_id', 'line_id', 'tower_id','type','tension'
     ];
 
     public function user()

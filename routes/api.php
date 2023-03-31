@@ -22,23 +22,34 @@ use App\Http\Controllers\Api\TowerController;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('tower/create', [TowerController::class, 'store']);
+Route::get('user/role', [TowerController::class, 'role']);
 Route::post('report/generate', [TowerController::class, 'generate']);
 Route::get('tower/all', [TowerController::class, 'index']);
+Route::get('towers/all', [TowerController::class, 'allTowers']);
 Route::get('lines/all', [TowerController::class, 'allLines']);
 Route::get('reports/all', [TowerController::class, 'allReports']);
 Route::get('lines/select', [TowerController::class, 'lines']);
 Route::get('towers/select', [TowerController::class, 'towers']);
 Route::get('line/{line}', [TowerController::class, 'showLine']);
 Route::get('tower/{tower}', [TowerController::class, 'show']);
+Route::get('towers/{line}', [TowerController::class, 'getTowers']);
 Route::get('report/{report}', [TowerController::class, 'showReport']);
 Route::post('line/create', [TowerController::class, 'storeLine']);
 Route::get('questions', [TowerController::class, 'getQuestions']);
+Route::get('download/reports', [TowerController::class, 'downloadReports']);
+Route::get('download/report', [TowerController::class, 'downloadReport']);
+Route::get('download/{tower}/report', [TowerController::class, 'downloadTowerReport']);
+Route::get('getCounts',[TowerController::class,'getNum']);
+Route::get('getThreshold',[TowerController::class,'getThreshold']);
+
+
 
 Route::group(['middleware' => 'auth:api'], function () {
 
 	Route::get('logout', [AuthController::class, 'logout']);
 
 	Route::get('profile', [AuthController::class, 'profile']);
+	Route::get('user/role', [AuthController::class, 'role']);
 	Route::post('change-password', [AuthController::class, 'changePassword']);
 	Route::post('update-profile', [AuthController::class, 'updateProfile']);
 

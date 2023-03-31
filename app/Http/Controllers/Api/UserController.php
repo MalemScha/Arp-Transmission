@@ -24,6 +24,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name'     => 'required | string ',
+            'phone_no'     => 'required | string ',
             'email'    => 'required | email | unique:users',
             'password' => 'required | confirmed',
             'role'     => 'required'
@@ -33,6 +34,7 @@ class UserController extends Controller
         $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
+                    'phone_no'    => $request->phone_no,
                     'password' => Hash::make($request->password)
                 ]);
 
@@ -56,6 +58,15 @@ class UserController extends Controller
     public function profile($id, Request $request)
     {
         $user = User::find($id);
+        if($user)
+            return response(['user' => $user,'success' => 1]);
+        else
+            return response(['message' => 'Sorry! Not found!','success' => 0]);
+    }
+
+    public function role()
+    {
+        $user = Auth::user();
         if($user)
             return response(['user' => $user,'success' => 1]);
         else

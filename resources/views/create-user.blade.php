@@ -49,11 +49,22 @@
                                 <div class="col-sm-6">
 
                                     <div class="form-group">
-                                        <label for="name">{{ __('Username')}}<span class="text-red">*</span></label>
+                                        <label for="name">{{ __('Name')}}<span class="text-red">*</span></label>
                                         <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="" placeholder="Enter user name" required>
                                         <div class="help-block with-errors"></div>
 
                                         @error('name')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="designation">{{ __('Designation')}}<span class="text-red">*</span></label>
+                                        <input id="designation" type="text" class="form-control @error('designation') is-invalid @enderror" name="designation" value="" placeholder="Enter user designation" required>
+                                        <div class="help-block with-errors"></div>
+
+                                        @error('designation')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </span>
@@ -65,6 +76,18 @@
                                         <div class="help-block with-errors" ></div>
 
                                         @error('email')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="phone_no">{{ __('Phone Number')}}<span class="text-red">*</span></label>
+                                        <input id="phone_no" pattern="[0-9]{10}" type="tel" class="form-control @error('phone_no') is-invalid @enderror" name="phone_no" value="" placeholder="1234-567890" required>
+                                        <div class="help-block with-errors"></div>
+
+                                        @error('phone_no')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
                                             </span>
@@ -124,6 +147,30 @@
     @push('script') 
         <script src="{{ asset('plugins/select2/dist/js/select2.min.js') }}"></script>
          <!--get role wise permissiom ajax script-->
-        <script src="{{ asset('js/get-role.js') }}"></script>
+        <script>
+            (function($) {
+            "use strict";
+            // role wise permissiom ajax script
+            $(document).on("change", "#role", function() {
+                var token = $("#token").val();
+                $.ajax({
+                    url: "{{ url('/get-role-permissions-badge') }}",
+                    type: "get",
+                    data: {
+                        id: $(this).val(),
+                        _token: token
+                    },
+                    success: function(res) {
+                        $("#permission").html(res);
+                    },
+                    error: function() {
+                        alert("failed...");
+                    }
+                });
+            });
+
+            $("select").select2();
+        })(jQuery);
+        </script>
     @endpush
 @endsection

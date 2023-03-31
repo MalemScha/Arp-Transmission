@@ -27,6 +27,13 @@
                         @can('manage_user')
                         <a href="{{url('users')}}" class="menu-item {{ ($segment1 == 'users') ? 'active' : '' }}">{{ __('Users')}}</a>
                         <a href="{{url('user/create')}}" class="menu-item {{ ($segment1 == 'user' && $segment2 == 'create') ? 'active' : '' }}">{{ __('Add User')}}</a>
+                        <a href="{{url('line')}}" class="menu-item {{ ($segment1 == 'line')  ? 'active' : '' }}">{{ __('Lines')}}</a>
+                        <a href="{{url('lines')}}" class="menu-item {{ ($segment1 == 'lines')  ? 'active' : '' }}">{{ __('Add Line')}}</a>
+                        <a href="{{url('tower')}}" class="menu-item {{ ($segment1 == 'tower') ? 'active' : '' }}">{{ __('Towers')}}</a>
+                        <a href="{{url('towers')}}" class="menu-item {{ ($segment1 == 'towers') ? 'active' : '' }}">{{ __('Add Tower')}}</a>
+                        <a href="{{url('threshold')}}" class="menu-item {{ ($segment1 == 'threshold')  ? 'active' : '' }}">{{ __('Threshold')}}</a>
+                        <a href="{{url('recipients')}}" class="menu-item {{ ($segment1 == 'recipients')  ? 'active' : '' }}">{{ __('Email Recipients')}}</a>
+                        <a href="{{url('email/schedule')}}" class="menu-item {{ ($segment1 == 'email' && $segment2 == 'schedule') ? 'active' : '' }}">{{ __('Email Schedule')}}</a>
                          @endcan
                          <!-- only those have manage_role permission will get access -->
                         @can('manage_roles')

@@ -9,6 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\TowerController;
+use App\Http\Controllers\LineController;
+use App\Http\Controllers\ScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,12 +23,12 @@ use App\Http\Controllers\PermissionController;
 | contains the "web" middleware group. Now create something great!
 |
 */ 
-Route::get('/', function () { return view('home'); });
+Route::get('/', [LoginController::class,'showLoginForm'])->name('login');
 
 
 Route::get('login', [LoginController::class,'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class,'login']);
-Route::post('register', [RegisterController::class,'register']);
+// Route::post('register', [RegisterController::class,'register']);
 
 Route::get('password/forget',  function () { 
 	return view('pages.forgot-password'); 
@@ -48,7 +51,32 @@ Route::group(['middleware' => 'auth'], function(){
 	//only those have manage_user permission will get access
 	Route::group(['middleware' => 'can:manage_user'], function(){
 	Route::get('/users', [UserController::class,'index']);
+	Route::get('/lines', [LineController::class,'index']);
+	Route::get('/line', [LineController::class,'show']);
+	Route::get('/tower', [TowerController::class,'show']);
+	Route::get('/threshold', [TowerController::class,'showThreshold']);
+	Route::post('/threshold/edit', [TowerController::class,'editThreshold'])->name('edit-threshold');
+	Route::post('/line/create', [LineController::class,'storeLine'])->name('create-line');
+	Route::get('/line/edit/{line}', [LineController::class,'edit'])->name('edit-line');
+	Route::post('/line/update/{line}', [LineController::class,'update']);
+
+
+	Route::get('/tower/edit/{tower}', [TowerController::class,'edit'])->name('edit-tower');
+	Route::get('/recipients', [TowerController::class,'recipients']);
+	Route::post('/add-recipients', [TowerController::class,'addRecipients'])->name('create-recipient');
+	Route::get('/recipient/delete/{recipient}', [TowerController::class,'deleteRecipient']);
+	Route::get('/email/schedule', [ScheduleController::class,'index']);
+	Route::post('/email/storeSchedule', [ScheduleController::class,'store'])->name('create-schedule');
+	Route::get('/email/schedule/delete/{schedule}', [ScheduleController::class,'destroy']);
+
+	Route::post('/tower/update/{tower}', [TowerController::class,'update']);
+	Route::get('/towers', [TowerController::class,'index']);
+	Route::post('/tower/create', [TowerController::class,'store'])->name('create-tower');
+	Route::get('/get-prev-tower', [TowerController::class, 'getPrevTower'])->name('get-prev-tower');
 	Route::get('/user/get-list', [UserController::class,'getUserList']);
+	Route::get('/line/get-list', [LineController::class,'getLineList']);
+	Route::get('/tower/get-list', [TowerController::class,'getTowerList']);
+	Route::get('/recipient/get-list', [TowerController::class,'getRecipientList']);
 		Route::get('/user/create', [UserController::class,'create']);
 		Route::post('/user/create', [UserController::class,'store'])->name('create-user');
 		Route::get('/user/{id}', [UserController::class,'edit']);

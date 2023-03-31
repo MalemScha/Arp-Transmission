@@ -50,6 +50,19 @@ class AuthController extends Controller
         ]);
     }
 
+    public function role(Request $request)
+    {
+        $user = Auth::user();
+        $roles = $user->getRoleNames();
+        $permission = $user->getAllPermissions();
+        return response([
+            'user'=> $user,
+            'role' => $roles,
+            'permission'=> $permission,
+            'success' => 1
+        ]);
+    }
+
 
     public function changePassword(Request $request)
     {
@@ -82,6 +95,7 @@ class AuthController extends Controller
     {
         $validData = $request->validate([
             'name' => 'required|string',
+            // 'phone_no'     => 'required | string ',
             'email' => 'required|email'
         ]);
 

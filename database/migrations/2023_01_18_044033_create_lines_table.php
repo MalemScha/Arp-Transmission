@@ -20,6 +20,11 @@ class CreateLinesTable extends Migration
             $table->unsignedBigInteger('end_location_id');
             $table->string('line_id')->unique();
             $table->string('name');
+            $table->string('voltage');
+            $table->string('circuit');
+            $table->string('length');
+            $table->string('conductor');
+            $table->unsignedBigInteger('tower_no');
             $table->timestamps();
         });
     }

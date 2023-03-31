@@ -18,7 +18,7 @@ class Report extends Model
      * @var array
      */
     protected $fillable = [
-        'tower_id', 'user_id', 'location_id', 'image', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20'
+        'sent','tower_id', 'user_id','line_id','threshold', 'location_id', 'image', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20'
     ];
 
     public function user()
@@ -29,8 +29,31 @@ class Report extends Model
     {
         return $this->belongsTo(Tower::class);
     }
+    public function line()  //one to many
+    {
+        return $this->belongsTo(Line::class);
+    }
     public function location()
     {
         return $this->hasOne(Location::class);
     }
+
+    public function distance(
+        $latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeTo)
+      {
+        // convert from degrees to radians
+        $earthRadius = 6371000;
+        $latFrom = deg2rad($latitudeFrom);
+        $lonFrom = deg2rad($longitudeFrom);
+        $latTo = deg2rad($latitudeTo);
+        $lonTo = deg2rad($longitudeTo);
+      
+        $lonDelta = $lonTo - $lonFrom;
+        $a = pow(cos($latTo) * sin($lonDelta), 2) +
+          pow(cos($latFrom) * sin($latTo) - sin($latFrom) * cos($latTo) * cos($lonDelta), 2);
+        $b = sin($latFrom) * sin($latTo) + cos($latFrom) * cos($latTo) * cos($lonDelta);
+      
+        $angle = atan2(sqrt($a), $b);
+        return $angle * $earthRadius;
+      }
 }

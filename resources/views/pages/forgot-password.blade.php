@@ -63,9 +63,6 @@
                                     <button class="btn btn-theme">{{ __('Submit') }}</button>
                                 </div>
                             </form>
-                            <div class="register">
-                                <p>{{ __('Not a member') }}? <a href="{{ url('register')}}">{{ __('Create an account') }}</a></p>
-                            </div>
                         </div>
                     </div>
                 </div>

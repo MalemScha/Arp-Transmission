@@ -2,21 +2,110 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ReportsExport;
+use App\Exports\LinesExport;
+use App\Exports\TowerExport;
+
 use App\Http\Controllers\Controller;
 use App\Line;
 use App\Location;
 use App\Question;
 use App\Report;
+use App\Threshold;
 use App\Tower;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\User;
-use Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TowerController extends Controller
 {
+
+
+    public function downloadReports(Request $request){
+        
+        $exploreDate = explode('-', $request->time);
+        // dd($exploreDate);
+        
+        // dd($reports);
+        $lines = Line::get();
+        $question = Question::where('id',1)->first();
+        // foreach ($reports as $report) {
+            // dd($report);=
+        $reportExcel =  Excel::download(new ReportsExport($lines,$question,$exploreDate[0],$exploreDate[1]),'Report for lines ('.$request->time.').xlsx');
+        return $reportExcel;
+
+        // }
+        // return Excel::download(new ReportsExport($reports), $e->title . '.xlsx');
+
+        // dd($reports);
+    }
+
+    public function downloadReport(Request $request){
+        
+        $exploreDate = explode('-', $request->time);
+        if ($request->id) {
+            $lines = Line::where('id',$request->id)->get();
+            $question = Question::where('id',1)->first();
+            // foreach ($reports as $report) {
+                // dd($report);=
+            $reportExcel =  Excel::download(new ReportsExport($lines,$question,$exploreDate[0],$exploreDate[1]),'Report for '.$lines[0]->name.' ('.$request->time.').xlsx');
+            return $reportExcel;
+        }
+
+        // }
+        // return Excel::download(new ReportsExport($reports), $e->title . '.xlsx');
+
+        // dd($reports);
+    }
+    public function downloadTowerReport(Tower $tower,Request $request,){
+        
+        // dd($request);
+        $exploreDate = explode('-', $request->time);
+        if ($request->time) {
+            // $lines = Line::where('id',$request->id)->get();
+            $question = Question::where('id',1)->first();
+            // foreach ($reports as $report) {
+                // dd($report);=
+
+            $reports = Report::where('tower_id',$tower->id)->whereYear('created_at', '=', $exploreDate[0])
+            ->whereMonth('created_at', '=', $exploreDate[1])
+            ->get();
+            $reportExcel =  Excel::download(new TowerExport($reports,$question,$exploreDate[1],$exploreDate[0],$tower),'Report for '.$tower->name.'('.$request->time.').xlsx');
+            return $reportExcel;
+        }
+
+        // }
+        // return Excel::download(new ReportsExport($reports), $e->title . '.xlsx');
+
+        // dd($reports);
+    }
+    public function getTowers(Line $line){
+        $towers = Tower::where('line_id',$line->id)->select('id as key', 'name as value', 'tower_id')->get();
+        foreach ($towers as $tower) {
+            $tower->key = (string)$tower->key;
+            $tower->value = $tower->tower_id . " - " . $tower->value;
+        }
+        return $towers;
+    }
+
+    public function getNum()
+    {
+        $user = Auth::user();
+        $towers = Tower::count();
+        $lines = Line::count();
+        $reports = Report::count();
+        return response([
+                'towersCount'=> $towers,
+                'linesCount'=>$lines,
+                'reportsCount'=>$reports,
+                'user'=>$user,
+        ]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -38,6 +127,18 @@ class TowerController extends Controller
             'message' => 'Sorry! Failed to add Line',
             'success' => 0
         ]);
+    }
+
+    public function role()
+    {
+        // dd( Auth::user()->getId());
+    }
+
+    public function allTowers()
+    {
+        $tower = Line::with('towers.location')->get();
+
+        return $tower;
     }
 
     public function allReports()
@@ -76,10 +177,10 @@ class TowerController extends Controller
 
     public function towers()
     {
-        $towers = Tower::select('id as key', 'name as value', 'tower_id')->get();
+        $towers = Line::select('id as key', 'name as value', 'line_id')->get();
         foreach ($towers as $tower) {
             $tower->key = (string)$tower->key;
-            $tower->value = $tower->tower_id . " - " . $tower->value;
+            $tower->value = $tower->line_id . " - " . $tower->value;
         }
         return $towers;
         if ($tower) {
@@ -176,7 +277,6 @@ class TowerController extends Controller
 
     public function generate(Request $request)
     {
-
         $request->validate(
             [
                 'lat'     => 'required | string',
@@ -209,19 +309,62 @@ class TowerController extends Controller
             ]
         );
         // dd($request); image
+        $filename = "";
+        if ($request->hasFile('image')){
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('images/'.$request->tower_id.'/',$filename,'public');
+        }
 
         $user = 1;
         //get tower
         $tower = Tower::where('id', $request->tower_id)->first();
+        $q = Threshold::where('id',1)->first();
 
 
-        //handle image
+        //handle image $request->tower_id
+        $threshold = 0;
+        if($request->q1){
+            $threshold = $threshold + $q->q1;
+        }
+        if($request->q2){
+            $threshold = $threshold + $q->q2;
+        }
+        if($request->q3){
+            $threshold = $threshold + $q->q3;
+        }
+        if($request->q4){
+            $threshold = $threshold + $q->q4;
+        }
+        if($request->q5){
+            $threshold = $threshold + $q->q5;
+        }
+        if($request->q6){
+            $threshold = $threshold + $q->q6;
+        }
+        if($request->q7){
+            $threshold = $threshold + $q->q7;
+        }
+        if($request->q8){
+            $threshold = $threshold + $q->q8;
+        }
+        if($request->q9){
+            $threshold = $threshold + $q->q9;
+        }
+        if($request->q10){
+            $threshold = $threshold + $q->q10;
+        }
+        $tower->update([
+            'threshold' => ($threshold/($q->q1+$q->q2+$q->q3+$q->q4+$q->q5+$q->q6+$q->q7+$q->q8+$q->q9+$q->q10))*100,
+        ]);
+
+        if ($request->hasFile('image')){
 
         $report = Report::create([
             'tower_id'     => $request->tower_id,
             'user_id'    => $user,
             'location_id' => $tower->location->id,
-            'image' => "default",
+            'image' => 'storage/images/'.$request->tower_id.'/'.$filename,
             'q1' => $request->q1,
             'q2' => $request->q2,
             'q3' => $request->q3,
@@ -232,7 +375,31 @@ class TowerController extends Controller
             'q8' => $request->q8,
             'q9' => $request->q9,
             'q10' => $request->q10,
+            'long'=> $request->long,
+            'lat'=> $request->lat,
+
         ]);
+    }else{
+        $report = Report::create([
+            'tower_id'     => $request->tower_id,
+            'user_id'    => $user,
+            'location_id' => $tower->location->id,
+            'image' => 'default',
+            'q1' => $request->q1,
+            'q2' => $request->q2,
+            'q3' => $request->q3,
+            'q4' => $request->q4,
+            'q5' => $request->q5,
+            'q6' => $request->q6,
+            'q7' => $request->q7,
+            'q8' => $request->q8,
+            'q9' => $request->q9,
+            'q10' => $request->q10,
+            'long'=> $request->long,
+            'lat'=> $request->lat,
+        ]);
+
+    }
         // dd($report);
         // $report->update(['line_id' => 'TRN-L-' . $line->id]);
 
@@ -414,6 +581,11 @@ class TowerController extends Controller
             'success' => 0
         ]);
     }
+
+    public function getThreshold(){
+        $q = Threshold::where('id',1)->first();
+        return $q->threshold;
+    }
     /**
      * Display the specified resource.
      *
@@ -427,7 +599,7 @@ class TowerController extends Controller
 
     public function showLine(Line $line)
     {
-        return $line->load('user:id,name');
+        return $line->load('user:id,name','towers','slocation','elocation');
     }
     public function showReport(Report $report)
     {

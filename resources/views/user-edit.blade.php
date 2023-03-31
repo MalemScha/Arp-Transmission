@@ -133,6 +133,31 @@
     @push('script') 
         <script src="{{ asset('plugins/select2/dist/js/select2.min.js') }}"></script>
         <!--get role wise permissiom ajax script-->
-        <script src="{{ asset('js/get-role.js') }}"></script>
+        <script>
+            (function($) {
+    "use strict";
+    // role wise permissiom ajax script
+    $(document).on("change", "#role", function() {
+        var token = $("#token").val();
+        $.ajax({
+            url: "{{ url('/get-role-permissions-badge') }}",
+            type: "get",
+            data: {
+                id: $(this).val(),
+                _token: token
+            },
+            success: function(res) {
+                $("#permission").html(res);
+            },
+            error: function() {
+                alert("failed...");
+            }
+        });
+    });
+
+    $("select").select2();
+})(jQuery);
+
+        </script>
     @endpush
 @endsection

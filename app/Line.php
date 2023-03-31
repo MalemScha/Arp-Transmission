@@ -18,16 +18,28 @@ class Line extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'user_id', '', 'start_location_id', 'end_location_id', 'line_id',
+        'name', 'user_id', 'start_location_id', 'end_location_id', 'line_id','voltage','circuit','length','conductor','tower_no'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+    public function slocation()
+    {
+        return $this->belongsTo(Location::class, 'start_location_id');
+    }
+    public function elocation()
+    {
+        return $this->belongsTo(Location::class, 'end_location_id');
+    }
     public function towers()  //one to many
     {
         return $this->hasMany(Tower::class);
+    }
+    public function reports()  //one to many
+    {
+        return $this->hasMany(Report::class);
     }
     public function location()
     {

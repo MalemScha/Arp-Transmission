@@ -20,6 +20,8 @@ class CreateTowersTable extends Migration
             $table->unsignedBigInteger('line_id');
             $table->string('name');
             $table->string('tower_id')->unique();
+            $table->string('type');
+            $table->string('tension');
             $table->timestamps();
         });
     }

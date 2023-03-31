@@ -93,6 +93,8 @@ class UserController extends Controller
         // create user 
         $validator = Validator::make($request->all(), [
             'name'     => 'required | string ',
+            'designation'     => 'required | string ',
+            'phone_no'     => 'required | string ',
             'email'    => 'required | email | unique:users',
             'password' => 'required | confirmed',
             'role'     => 'required'
@@ -107,6 +109,8 @@ class UserController extends Controller
             $user = User::create([
                         'name'     => $request->name,
                         'email'    => $request->email,
+                        'designation'    => $request->designation,
+                        'phone_no'    => $request->phone_no,
                         'password' => Hash::make($request->password),
                     ]);
 
