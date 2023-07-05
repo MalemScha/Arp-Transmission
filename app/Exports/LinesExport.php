@@ -80,7 +80,7 @@ class LinesExport implements FromView,WithStyles,WithEvents,WithTitle,WithCustom
      */
     public function title(): string
     {
-        return $this->lineName;
+        return $this->lineName.' ('.$this->year.'-'.$this->month.')';
     }
 
     public function registerEvents(): array

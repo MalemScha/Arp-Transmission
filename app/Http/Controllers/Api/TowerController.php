@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exports\ReportsExport;
 use App\Exports\LinesExport;
 use App\Exports\TowerExport;
-
+use App\Exports\TowersExport;
 use App\Http\Controllers\Controller;
 use App\Line;
 use App\Location;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\User;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,15 +29,16 @@ class TowerController extends Controller
 
     public function downloadReports(Request $request){
         
-        $exploreDate = explode('-', $request->time);
-        // dd($exploreDate);
+        // $from = explode('-', $request->from);
+        // $to = explode('-', $request->to);
+        $period = CarbonPeriod::create($request->from, '1 month', $request->to);
         
         // dd($reports);
         $lines = Line::get();
         $question = Question::where('id',1)->first();
         // foreach ($reports as $report) {
             // dd($report);=
-        $reportExcel =  Excel::download(new ReportsExport($lines,$question,$exploreDate[0],$exploreDate[1]),'Report for lines ('.$request->time.').xlsx');
+        $reportExcel =  Excel::download(new ReportsExport($lines,$question,$period),'Report for lines ('.$request->from.'-'.$request->to.').xlsx');
         return $reportExcel;
 
         // }
@@ -46,14 +48,14 @@ class TowerController extends Controller
     }
 
     public function downloadReport(Request $request){
-        
-        $exploreDate = explode('-', $request->time);
+
+        $period = CarbonPeriod::create($request->from, '1 month', $request->to);
         if ($request->id) {
             $lines = Line::where('id',$request->id)->get();
             $question = Question::where('id',1)->first();
             // foreach ($reports as $report) {
                 // dd($report);=
-            $reportExcel =  Excel::download(new ReportsExport($lines,$question,$exploreDate[0],$exploreDate[1]),'Report for '.$lines[0]->name.' ('.$request->time.').xlsx');
+            $reportExcel =  Excel::download(new ReportsExport($lines,$question,$period),'Report for '.$lines[0]->name.' ('.$request->from.'-'.$request->to.').xlsx');
             return $reportExcel;
         }
 
@@ -62,20 +64,15 @@ class TowerController extends Controller
 
         // dd($reports);
     }
-    public function downloadTowerReport(Tower $tower,Request $request,){
+    public function downloadTowerReport(Tower $tower,Request $request){
         
-        // dd($request);
-        $exploreDate = explode('-', $request->time);
-        if ($request->time) {
+        $period = CarbonPeriod::create($request->from, '1 month', $request->to);
+        if ($request->from) {
             // $lines = Line::where('id',$request->id)->get();
             $question = Question::where('id',1)->first();
-            // foreach ($reports as $report) {
-                // dd($report);=
+            $reportExcel =  Excel::download(new TowersExport($tower,$question,$period),'Report for '.$tower->name.'('.$request->from.'-'.$request->to.').xlsx');
+            // $reportExcel =  Excel::download(new TowerExport($reports,$question,$exploreDate[1],$exploreDate[0],$tower),'Report for '.$tower->name.'('.$request->time.').xlsx');
 
-            $reports = Report::where('tower_id',$tower->id)->whereYear('created_at', '=', $exploreDate[0])
-            ->whereMonth('created_at', '=', $exploreDate[1])
-            ->get();
-            $reportExcel =  Excel::download(new TowerExport($reports,$question,$exploreDate[1],$exploreDate[0],$tower),'Report for '.$tower->name.'('.$request->time.').xlsx');
             return $reportExcel;
         }
 
@@ -308,6 +305,7 @@ class TowerController extends Controller
                 'long.required' => 'Co-ordinate is required.',
             ]
         );
+        // return $request->long;
         // dd($request); image
         $filename = "";
         if ($request->hasFile('image')){
@@ -363,7 +361,7 @@ class TowerController extends Controller
         $report = Report::create([
             'tower_id'     => $request->tower_id,
             'user_id'    => $user,
-            'location_id' => $tower->location->id,
+            'line_id' => $tower->line->id,
             'image' => 'storage/images/'.$request->tower_id.'/'.$filename,
             'q1' => $request->q1,
             'q2' => $request->q2,
@@ -375,15 +373,15 @@ class TowerController extends Controller
             'q8' => $request->q8,
             'q9' => $request->q9,
             'q10' => $request->q10,
-            'long'=> $request->long,
-            'lat'=> $request->lat,
+            'longitude'=> $request->long,
+            'latitude'=> $request->lat,
 
         ]);
     }else{
         $report = Report::create([
             'tower_id'     => $request->tower_id,
             'user_id'    => $user,
-            'location_id' => $tower->location->id,
+            'line_id' => $tower->line->id,
             'image' => 'default',
             'q1' => $request->q1,
             'q2' => $request->q2,
@@ -395,8 +393,8 @@ class TowerController extends Controller
             'q8' => $request->q8,
             'q9' => $request->q9,
             'q10' => $request->q10,
-            'long'=> $request->long,
-            'lat'=> $request->lat,
+            'longitude'=> $request->long,
+            'latitude'=> $request->lat,
         ]);
 
     }

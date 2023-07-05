@@ -77,9 +77,16 @@ class TowerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function dashboard()
     {
-        //
+        $users = User::count();
+        $towers = Tower::count();
+        $lines = Line::count();
+        return view('pages.dashboard',[
+            'towersCount'=> $towers,
+            'linesCount'=>$lines,
+            'userCount'=>$users,
+    ]); 
     }
 
 

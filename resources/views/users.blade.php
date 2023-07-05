@@ -39,7 +39,13 @@
             <!-- end message area-->
             <div class="col-md-12">
                 <div class="card p-3">
-                    <div class="card-header"><h3>{{ __('Users')}}</h3></div>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>{{ __('Users')}}</h3>
+                        <div class="float-end">
+                            <i class="ik ik-user-plus"></i>
+                            <a style="text-decoration: underline;" href="{{url('user/create')}}">add user</a>
+                        </div>
+                    </div>
                     <div class="card-body">
                         <table id="user_table" class="table">
                             <thead>

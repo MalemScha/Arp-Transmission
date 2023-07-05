@@ -14,18 +14,18 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class ReportsExport implements WithMultipleSheets
+class TowersExport implements WithMultipleSheets
 {
 
-    protected $lines;
+    protected $tower;
     protected $question;
     protected $period;
 
 
 
-    public function __construct($lines,$question,$period)
+    public function __construct($tower,$question,$period)
     {
-        $this->lines = $lines;
+        $this->tower = $tower;
         $this->question = $question;
         $this->period = $period;
 
@@ -39,25 +39,14 @@ class ReportsExport implements WithMultipleSheets
     {
         $sheets = [];
 
-        foreach($this->lines as $line) {
             foreach ($this->period as $key => $d) {
-                $reports = Report::where('line_id',$line->id)->whereYear('created_at', '=', $d->format('Y'))
+                $reports = Report::where('tower_id',$this->tower->id)->whereYear('created_at', '=', $d->format('Y'))
                 ->whereMonth('created_at', '=', $d->format('m'))
                 ->get();
                 $date = Carbon::createFromDate($d->format('Y'), $d->format('m'), 1);
-                $c = ($date->subMonths(2)->toDateTimeString());
-                $count = 0;
-                foreach ($reports as $report) {
-                    $res = Report::where('tower_id',$report->tower_id)->where(
-                        'created_at', '>', $c)->get();
-                        if($res->count() == 1){
-                            $count++;
-                        }
-                }
                 // dd($count);
-                $sheets[] = new LinesExport($reports, $this->question,'title',$line->name,$d->format('m'),$d->format('Y'),$line->tower_no,$reports->count(),$count);
-        }
-
+                // Excel::download(new TowerExport($reports,$question,$exploreDate[1],$exploreDate[0],$tower),'Report for '.$tower->name.'('.$request->time.').xlsx');
+                $sheets[] = new TowerExport($reports, $this->question,$d->format('m'),$d->format('Y'),$this->tower);
         }
 
         return $sheets;

@@ -67,7 +67,7 @@ class TowerExport implements FromView,WithStyles,WithEvents,WithTitle,WithCustom
      */
     public function title(): string
     {
-        return $this->tower->name;
+        return $this->tower->name.' ('.$this->year.'-'.$this->month.')';
     }
 
     public function registerEvents(): array
